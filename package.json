@@ -1,0 +1,12 @@
+{
+	"name": "tiny-commerce-workspace",
+	"private": true,
+	"scripts": {
+		"dev": "bun run --cwd commerce dev",
+		"check": "bun run --cwd commerce check",
+		"lint": "bun run --cwd commerce lint",
+		"test": "bun run --cwd commerce test",
+		"build": "bun run --cwd commerce build",
+		"reset:db": "bun run --cwd commerce reset:db"
+	}
+}
