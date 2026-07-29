@@ -174,7 +174,7 @@ type Product = {
 - `price`は税込価格を円単位の整数で保持する
 - `stock`は0以上の整数とする
 - `imageKey`はSeaweedFSのオブジェクトキーとし、`products/<ファイル名>`形式とする
-- 初期商品の画像はリポジトリ直下の`samples/products/`を原本とする
+- 初期商品の画像はアプリルートの`samples/products/`を原本とする
 - シード時に画像をSeaweedFSへアップロードする
 
 ### 4.2 CartItem
@@ -243,7 +243,7 @@ type OrderItem = {
 
 - バケット名は`tiny-commerce`とする
 - オブジェクトキーは`products/<ファイル名>`とする
-- 初期画像の原本はリポジトリ直下の`samples/products/`へ保存する
+- 初期画像の原本はアプリルートの`samples/products/`へ保存する
 - `samples/`はシードの入力専用とし、Viteから直接配信しない
 - データベースにはSeaweedFSの接続先や完全なURLを保存しない
 - ブラウザはSeaweedFSの公開URLから画像を直接取得する
@@ -557,13 +557,13 @@ SeaweedFSはDocker Composeで単一ノードの開発環境として起動し、
 
 ### 9.5 開発環境の起動
 
-リポジトリ直下で次のコマンドを実行するだけで、開発に必要な環境が起動するようにする。
+アプリルートで次のコマンドを実行するだけで、開発に必要な環境が起動するようにする。
 
 ```bash
 bun run dev
 ```
 
-リポジトリ直下の`package.json`は`commerce`の`dev`へ処理を委譲する。`commerce/package.json`の`dev`は`scripts/dev.sh`を実行する。`scripts/dev.sh`は次の順序で処理する。
+アプリルートの`package.json`の`dev`は`scripts/dev.sh`を実行する。`scripts/dev.sh`は次の順序で処理する。
 
 1. DockerとDocker Composeを利用できることを確認する
 2. `docker compose up -d seaweedfs`でSeaweedFSを起動する
@@ -586,8 +586,7 @@ bun run dev
 ## 10. ディレクトリ構成
 
 ```text
-<repository-root>/
-├── package.json                         # commerceのdevを呼び出す
+<app-root>/
 ├── samples/
 │   └── products/                         # 初期商品画像の原本
 │       ├── mini-notebook.webp
@@ -595,47 +594,46 @@ bun run dev
 │       ├── desk-mat.webp
 │       ├── mechanical-keyboard.webp
 │       └── monitor-stand.webp
-└── commerce/
-    ├── data/                               # SQLiteデータベース
-    ├── drizzle/                            # SQLマイグレーション
-    ├── scripts/
-    │   ├── dev.sh                          # 開発環境全体の起動
-    │   ├── seed.ts                         # DB登録とSeaweedFSへの画像投入
-    │   └── reset-db.ts
-    ├── src/
-    │   ├── lib/
-    │   │   ├── cart.svelte.ts              # runes、localStorage、API呼び出し
-    │   │   ├── components/                 # 複数画面で共有するUI
-    │   │   └── server/
-    │   │       ├── db/
-    │   │       │   ├── index.ts
-    │   │       │   └── schema.ts
-    │   │       └── services/
-    │   │           ├── products.ts
-    │   │           ├── coupons.ts
-    │   │           ├── checkout.ts
-    │   │           ├── checkout.test.ts
-    │   │           └── orders.ts
-    │   └── routes/
-    │       ├── +page.server.ts
-    │       ├── +page.svelte
-    │       ├── cart/+page.svelte
-    │       ├── checkout/+page.svelte
-    │       ├── orders/[orderId]/
-    │       │   ├── +page.server.ts
-    │       │   └── +page.svelte
-    │       ├── admin/
-    │       │   ├── products/
-    │       │   ├── coupons/
-    │       │   └── orders/
-    │       └── api/
-    │           ├── cart/calculate/+server.ts
-    │           └── orders/+server.ts
-    ├── tests/
-    │   └── e2e/
-    ├── docker-compose.yml                 # SeaweedFS
-    ├── drizzle.config.ts
-    └── package.json
+├── data/                                 # SQLiteデータベース
+├── drizzle/                              # SQLマイグレーション
+├── scripts/
+│   ├── dev.sh                            # 開発環境全体の起動
+│   ├── seed.ts                           # DB登録とSeaweedFSへの画像投入
+│   └── reset-db.ts
+├── src/
+│   ├── lib/
+│   │   ├── cart.svelte.ts                # runes、localStorage、API呼び出し
+│   │   ├── components/                   # 複数画面で共有するUI
+│   │   └── server/
+│   │       ├── db/
+│   │       │   ├── index.ts
+│   │       │   └── schema.ts
+│   │       └── services/
+│   │           ├── products.ts
+│   │           ├── coupons.ts
+│   │           ├── checkout.ts
+│   │           ├── checkout.test.ts
+│   │           └── orders.ts
+│   └── routes/
+│       ├── +page.server.ts
+│       ├── +page.svelte
+│       ├── cart/+page.svelte
+│       ├── checkout/+page.svelte
+│       ├── orders/[orderId]/
+│       │   ├── +page.server.ts
+│       │   └── +page.svelte
+│       ├── admin/
+│       │   ├── products/
+│       │   ├── coupons/
+│       │   └── orders/
+│       └── api/
+│           ├── cart/calculate/+server.ts
+│           └── orders/+server.ts
+├── tests/
+│   └── e2e/
+├── docker-compose.yml                    # SeaweedFS
+├── drizzle.config.ts
+└── package.json
 ```
 
 カートのためのディレクトリや、汎用的な`types.ts`は作らない。型はその型を主に使うファイルに置く。`cart.svelte.ts`はブラウザ側のモジュールとし、サービスからimportしない。
@@ -656,7 +654,7 @@ IDを固定し、データを初期化するたびに同じ状態を作る。
 | メカニカルキーボード | desk       | 12,800円 |   10 | 公開     | `mechanical-keyboard.webp` |
 | モニタースタンド     | desk       |  4,800円 |    0 | 公開     | `monitor-stand.webp`       |
 
-各画像の原本はリポジトリ直下の`samples/products/`へ保存する。シード処理は同名のファイルをSeaweedFSの`tiny-commerce`バケットへ`products/<ファイル名>`としてアップロードする。商品の`imageKey`には同じオブジェクトキーを設定する。
+各画像の原本はアプリルートの`samples/products/`へ保存する。シード処理は同名のファイルをSeaweedFSの`tiny-commerce`バケットへ`products/<ファイル名>`としてアップロードする。商品の`imageKey`には同じオブジェクトキーを設定する。
 
 ### 11.2 クーポン
 

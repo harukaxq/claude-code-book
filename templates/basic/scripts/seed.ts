@@ -8,7 +8,7 @@ import { db } from '../src/lib/server/db';
 import { coupons, products } from '../src/lib/server/db/schema';
 
 const bucket = 'tiny-commerce';
-const sampleDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '../../samples/products');
+const sampleDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '../samples/products');
 const now = new Date('2026-01-01T00:00:00.000Z');
 
 const productSeeds = [
