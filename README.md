@@ -9,8 +9,10 @@
 | 章 | 使用するテンプレート |
 | --- | --- |
 | 第3〜5章 | [`templates/basic`](templates/basic) |
+| 第6章 | [`templates/bugfix`](templates/bugfix) |
+| 第7章 | [`templates/reviews`](templates/reviews) |
 
-以降の章で使うテンプレートは順次追加します。
+第6章のテンプレートには、教材として調査・修正する不具合が含まれます。第7章のテンプレートは、第6章までの修正を反映した開始状態です。
 
 ## 必要な環境
 

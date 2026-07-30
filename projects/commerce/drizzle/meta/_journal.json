@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1784705369500,
+      "tag": "0000_loving_bishop",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1785386847900,
+      "tag": "0001_oval_stone_men",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1785387027927,
+      "tag": "0002_mushy_iceman",
+      "breakpoints": true
+    }
+  ]
+}
