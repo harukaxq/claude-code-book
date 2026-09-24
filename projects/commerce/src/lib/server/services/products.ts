@@ -52,6 +52,7 @@ export async function updateProduct(id: string, input: ProductInput): Promise<vo
 		.update(products)
 		.set({ ...input, updatedAt: new Date() })
 		.where(eq(products.id, id))
-		.run();
-	if (result.changes === 0) throw new Error('商品が見つかりません。');
+		.returning({ id: products.id })
+		.get();
+	if (!result) throw new Error('商品が見つかりません。');
 }

@@ -42,8 +42,10 @@ if (await isWebRunning()) {
 	process.exit(1);
 }
 
-const runningServices = run(['docker', 'compose', 'ps', '--status', 'running', '--services'], true)
-	.stdout.toString()
+const runningServices = (
+	run(['docker', 'compose', 'ps', '--status', 'running', '--services'], true).stdout?.toString() ??
+	''
+)
 	.trim()
 	.split('\n');
 const seaweedWasRunning = runningServices.includes('seaweedfs');
@@ -60,8 +62,8 @@ try {
 	}
 
 	console.log('SQLiteデータベースを削除しました。マイグレーションを適用します。');
-	run(['bunx', 'drizzle-kit', 'migrate']);
-	run(['bunx', 'tsx', 'scripts/seed.ts']);
+	run([process.execPath, 'scripts/migrate.ts']);
+	run([process.execPath, 'scripts/seed.ts']);
 	console.log('初期状態へのリセットが完了しました。');
 } finally {
 	if (!seaweedWasRunning) run(['docker', 'compose', 'stop', 'seaweedfs']);

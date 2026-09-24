@@ -9,6 +9,8 @@ SvelteKitの画面からサービス、Drizzle ORM、SQLiteへ処理が流れる
 - [Bun](https://bun.sh/) 1.3以降
 - DockerとDocker Compose
 
+Node.js・Python・Bashの追加インストールは不要です。WindowsではPowerShellから実行できます。SQLiteはBun標準の`bun:sqlite`を使用します。
+
 ## 起動する
 
 このディレクトリ直下で、依存パッケージをインストールして開発環境を起動します。

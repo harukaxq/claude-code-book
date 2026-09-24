@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
-import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
+import { migrate } from 'drizzle-orm/bun-sqlite/migrator';
 import { db } from '$lib/server/db';
 import { orderItems, orders, products, reviews } from '$lib/server/db/schema';
 import { createReview, getProductReviews, getReviewEligibility, ReviewError } from './reviews';

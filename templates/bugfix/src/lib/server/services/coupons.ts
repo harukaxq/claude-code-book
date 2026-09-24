@@ -31,6 +31,7 @@ export async function updateCoupon(id: string, input: CouponInput): Promise<void
 		.update(coupons)
 		.set({ ...input, updatedAt: new Date() })
 		.where(eq(coupons.id, id))
-		.run();
-	if (result.changes === 0) throw new Error('クーポンが見つかりません。');
+		.returning({ id: coupons.id })
+		.get();
+	if (!result) throw new Error('クーポンが見つかりません。');
 }

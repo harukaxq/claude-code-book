@@ -1,6 +1,8 @@
+import { updateProduct } from './products';
+import { updateCoupon } from './coupons';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { eq } from 'drizzle-orm';
-import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
+import { migrate } from 'drizzle-orm/bun-sqlite/migrator';
 import { db } from '$lib/server/db';
 import { coupons, orderItems, orders, products, reviews } from '$lib/server/db/schema';
 import { calculateCart, calculateTotals, CheckoutError, placeOrder } from './checkout';
@@ -179,5 +181,36 @@ describe('checkout service', () => {
 		).rejects.toBeInstanceOf(CheckoutError);
 		expect(db.select().from(orders).all()).toHaveLength(0);
 		expect(db.select().from(products).where(eq(products.id, 'desk-mat')).get()?.stock).toBe(5);
+	});
+});
+
+describe('管理画面の更新', () => {
+	test('存在する商品を更新し、存在しない商品はエラーにする', async () => {
+		const input = {
+			name: '更新商品',
+			description: 'updated',
+			imageKey: 'products/desk-mat.webp',
+			category: 'desk' as const,
+			price: 4000,
+			stock: 3,
+			isActive: true
+		};
+		await updateProduct('desk-mat', input);
+		expect(db.select().from(products).where(eq(products.id, 'desk-mat')).get()?.price).toBe(4000);
+		await expect(updateProduct('missing', input)).rejects.toThrow('商品が見つかりません。');
+	});
+	test('存在するクーポンを更新し、存在しないクーポンはエラーにする', async () => {
+		const input = {
+			code: 'WELCOME500',
+			discountType: 'fixed' as const,
+			discountValue: 600,
+			minimumSubtotal: 3000,
+			isActive: true
+		};
+		await updateCoupon('welcome', input);
+		expect(db.select().from(coupons).where(eq(coupons.id, 'welcome')).get()?.discountValue).toBe(
+			600
+		);
+		await expect(updateCoupon('missing', input)).rejects.toThrow('クーポンが見つかりません。');
 	});
 });

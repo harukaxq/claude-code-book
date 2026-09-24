@@ -562,7 +562,7 @@ SeaweedFSはDocker Composeで単一ノードの開発環境として起動し、
 - データはDockerのnamed volumeへ保存し、通常の停止では削除しない
 - ブラウザへ認証情報は渡さない
 
-ローカル開発に必要な値には既定値を用意し、初回起動のための`.env`作成を必須にしない。`scripts/dev.sh`は`PUBLIC_PRODUCT_IMAGE_BASE_URL=http://localhost:8333/tiny-commerce`をViteへ渡す。
+ローカル開発に必要な値には既定値を用意し、初回起動のための`.env`作成を必須にしない。`scripts/dev.ts`は`PUBLIC_PRODUCT_IMAGE_BASE_URL=http://localhost:8333/tiny-commerce`をViteへ渡す。
 
 ### 9.5 開発環境の起動
 
@@ -572,7 +572,7 @@ SeaweedFSはDocker Composeで単一ノードの開発環境として起動し、
 bun run dev
 ```
 
-アプリルートの`package.json`の`dev`は`scripts/dev.sh`を実行する。`scripts/dev.sh`は次の順序で処理する。
+アプリルートの`package.json`の`dev`は`scripts/dev.ts`を実行する。`scripts/dev.ts`は次の順序で処理する。
 
 1. DockerとDocker Composeを利用できることを確認する
 2. `docker compose up -d seaweedfs`でSeaweedFSを起動する
@@ -606,7 +606,8 @@ bun run dev
 ├── data/                                 # SQLiteデータベース
 ├── drizzle/                              # SQLマイグレーション
 ├── scripts/
-│   ├── dev.sh                            # 開発環境全体の起動
+│   ├── dev.ts                            # 開発環境全体の起動
+│   ├── migrate.ts                        # Bun標準SQLiteでマイグレーションを適用
 │   ├── seed.ts                           # DB登録とSeaweedFSへの画像投入
 │   └── reset-db.ts
 ├── src/

@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -7,6 +8,6 @@ export default defineConfig({
 		setupFiles: ['./tests/setup.ts']
 	},
 	resolve: {
-		alias: { $lib: new URL('./src/lib', import.meta.url).pathname }
+		alias: { $lib: fileURLToPath(new URL('./src/lib', import.meta.url)) }
 	}
 });
