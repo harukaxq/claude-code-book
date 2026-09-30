@@ -21,6 +21,8 @@
 
 ## 始め方
 
+### 第3〜5章
+
 リポジトリ直下で、使用するテンプレートを`projects/`へコピーします。
 
 ```bash
@@ -31,6 +33,25 @@ bun run dev
 ```
 
 アプリは <http://localhost:5173> で開けます。終了するときは、起動したターミナルで`Ctrl+C`を押してください。
+
+### 第6章
+
+作業フォルダは[`projects/chapter06`](projects/chapter06)です。別のTinyCommerceが起動している場合は、先に停止してください。
+
+作業フォルダがない場合は、リポジトリ直下で次のコマンドを実行し、原本からコピーします。すでにある場合は、コピーする必要はありません。
+
+```bash
+cp -r templates/bugfix projects/chapter06
+```
+
+VS Codeで`projects/chapter06`を開き、[`TICKET.md`](projects/chapter06/TICKET.md)の報告内容を確認してください。VS Codeのターミナルで次のコマンドを実行すると、第6章のアプリが起動します。
+
+```bash
+bun install
+bun run dev
+```
+
+第6章の原本は[`templates/bugfix`](templates/bugfix)です。前章のコードやDBを移す必要はありません。
 
 ## やり直したいとき
 
