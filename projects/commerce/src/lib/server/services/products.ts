@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { and, asc, eq } from 'drizzle-orm';
+import { asc, eq } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import { products } from '$lib/server/db/schema';
 
@@ -22,16 +22,6 @@ export async function listActiveProducts(): Promise<Product[]> {
 		.where(eq(products.isActive, true))
 		.orderBy(asc(products.createdAt))
 		.all();
-}
-
-export async function getActiveProduct(productId: string): Promise<Product | null> {
-	return (
-		db
-			.select()
-			.from(products)
-			.where(and(eq(products.id, productId), eq(products.isActive, true)))
-			.get() ?? null
-	);
 }
 
 export async function listProducts(): Promise<Product[]> {

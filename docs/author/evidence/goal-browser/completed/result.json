@@ -1,0 +1,16 @@
+{
+  "browser": "145.0.7632.6",
+  "platform": "linux",
+  "viewport": [
+    280,
+    720
+  ],
+  "dpr": 1,
+  "threshold": 0.1,
+  "includeAA": true,
+  "differentPixels": 0,
+  "totalPixels": 201600,
+  "percent": 0,
+  "limitPercent": 1,
+  "passed": true
+}

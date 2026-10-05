@@ -1,0 +1,21 @@
+// 隔離した教材コピーのルートで実行する。生成物はnode_modules/.cacheのみ。
+import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
+import { resolve } from 'node:path';
+import { readFile,writeFile,mkdir } from 'node:fs/promises';
+const require=createRequire(resolve('package.json'));
+const {compileModule}=await import(pathToFileURL(require.resolve('svelte/compiler')).href);
+const {transpile}=await import(pathToFileURL(require.resolve('typescript')).href);
+const source=await readFile(resolve('src/lib/cart.svelte.ts'),'utf8');
+const output=resolve('node_modules/.cache/book-cart-race.mjs');await mkdir(resolve('node_modules/.cache'),{recursive:true});
+await writeFile(output,compileModule(transpile(source,{target:99,module:99}),{filename:'cart.svelte.ts',generate:'server'}).js.code);
+const {CartState}=await import(pathToFileURL(output).href);
+const pending=[];globalThis.fetch=()=>new Promise(resolve=>pending.push(resolve));
+const reply=(i,total)=>pending[i]({ok:true,json:async()=>({total})});
+const cart=new CartState();cart.add('p');const a=cart.calculate();cart.setQuantity('p',2);const b=cart.calculate();
+reply(1,200);await b;reply(0,100);await a;const staleTotal=cart.summary.total;
+const c=cart.calculate();cart.clear();reply(2,200);await c;const afterClear=cart.summary.total;
+cart.add('p');const d=cart.calculate();cart.remove('p');await cart.calculate();reply(3,300);await d;
+const afterEmpty=cart.summary.total;
+console.log(JSON.stringify({staleTotal,afterClear,afterEmpty,isCalculating:cart.isCalculating}));
+if(staleTotal!==200||afterClear!==0||afterEmpty!==0||cart.isCalculating)process.exitCode=1;

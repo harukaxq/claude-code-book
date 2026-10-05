@@ -17,8 +17,7 @@ export type CartProduct = {
 
 export type CouponForCalculation = {
 	code: string;
-	discountType: 'fixed' | 'percentage';
-	discountValue: number;
+	discountAmount: number;
 	minimumSubtotal: number;
 	isActive: boolean;
 };
@@ -70,11 +69,7 @@ export function calculateTotals(
 				`クーポン「${coupon.code}」は商品小計${coupon.minimumSubtotal.toLocaleString('ja-JP')}円以上で利用できます。`
 			);
 		} else {
-			const calculatedDiscount =
-				coupon.discountType === 'fixed'
-					? coupon.discountValue
-					: Math.floor((subtotal * coupon.discountValue) / 100);
-			couponDiscount = Math.min(calculatedDiscount, subtotal);
+			couponDiscount = Math.min(coupon.discountAmount, subtotal);
 			appliedCoupon = { code: coupon.code, discountAmount: couponDiscount };
 		}
 	}

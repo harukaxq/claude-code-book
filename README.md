@@ -1,63 +1,51 @@
 # Claude Code本 教材リポジトリ
 
-このリポジトリは、Claude Code本で使用する教材です。小さなECアプリ「TinyCommerce」を題材に、既存コードの調査、機能追加、バグ修正などを進めます。
+TinyCommerceを使い、調査・実装・確認を学ぶ教材です。`templates`は開始原本、配布済みの`projects`は読者の作業先、`examples`は完成例です。
 
-`templates/`には章ごとの開始状態となる原本があり、`projects/`へコピーしたアプリを読者の作業場所として使います。
+| 章 | 開始原本 | 作業先 |
+| --- | --- | --- |
+| 第3〜5章（継続） | templates/basic | projects/commerce |
+| 第6章（独立） | templates/bugfix | projects/chapter06 |
+| 第7章（独立） | templates/reviews | projects/chapter07 |
+| 第8章（独立） | templates/workflows | projects/chapter08 |
 
-## 章とテンプレート
-
-| 章 | 使用するテンプレート |
-| --- | --- |
-| 第3〜5章 | [`templates/basic`](templates/basic) |
-| 第6章 | [`templates/bugfix`](templates/bugfix) |
-| 第7章 | [`templates/reviews`](templates/reviews) |
-
-第6章のテンプレートには、教材として調査・修正する不具合が含まれます。第7章のテンプレートは、第6章までの修正を反映した開始状態です。
-
-## 必要な環境
-
-- [Bun](https://bun.sh/) 1.3以降
-- DockerとDocker Compose
+第5章の点数表示・Undo、第7章の商品詳細・レビューは未実装です。第6章の送料バグ、第8章の未使用変数lintエラーは演習用です。
 
 ## 始め方
 
-### 第3〜5章
+Bun 1.3以降とDocker Composeを用意し、配布済みの作業先へ移動します。第5章では第3・4章の作業をそのまま継続します。
 
-リポジトリ直下で、使用するテンプレートを`projects/`へコピーします。
-
-```bash
-cp -r templates/basic projects/commerce
+```sh
 cd projects/commerce
-bun install
+bun install --frozen-lockfile
 bun run dev
 ```
 
-アプリは <http://localhost:5173> で開けます。終了するときは、起動したターミナルで`Ctrl+C`を押してください。
+第6〜8章では表の作業先を使います。前のアプリはCtrl+C後、停止処理完了まで待ってください。Webは5173（使用中なら失敗）、SeaweedFSは8333を使用します。複数アプリを同時起動しないでください。同じ`http://localhost:5173`ではlocalStorageのカートを持ち越すため、再読み込み後、商品・数量・クーポンを章の条件へ揃えます。
 
-### 第6章
+通常起動は既存の商品・在庫・公開状態・クーポン・注文を保持し、不足する初期データと画像だけを追加します。DBの初期化は明示的な`reset:db`で行う破壊的操作なので、必要なデータを先に退避してください。原本を既存作業先へ上書きしないでください。
 
-作業フォルダは[`projects/chapter06`](projects/chapter06)です。別のTinyCommerceが起動している場合は、先に停止してください。
+## やり直す場合
 
-作業フォルダがない場合は、リポジトリ直下で次のコマンドを実行し、原本からコピーします。すでにある場合は、コピーする必要はありません。
+既存作業先は残し、まだ存在しない別名の作業先へ原本をコピーします。次は第5章を別の場所で試す例です。
 
-```bash
-cp -r templates/bugfix projects/chapter06
+macOSのターミナル：
+
+```sh
+test ! -e projects/commerce-retry && cp -R templates/basic projects/commerce-retry
 ```
 
-VS Codeで`projects/chapter06`を開き、[`TICKET.md`](projects/chapter06/TICKET.md)の報告内容を確認してください。VS Codeのターミナルで次のコマンドを実行すると、第6章のアプリが起動します。
+Windows PowerShell：
 
-```bash
-bun install
-bun run dev
+```powershell
+if (Test-Path projects/commerce-retry) { throw 'コピー先が既に存在します' }
+Copy-Item -Recurse templates/basic projects/commerce-retry
 ```
 
-第6章の原本は[`templates/bugfix`](templates/bugfix)です。前章のコードやDBを移す必要はありません。
+他章も表の原本と、新しいコピー先名を指定します。前章のDBを移す必要はありません。既存のデータが残る作業先を初期状態だと思って起動しないでください。
 
-## やり直したいとき
+## 完成例と著者用検証
 
-`projects/`配下の作業ディレクトリを削除し、テンプレートからもう一度コピーするだけで開始状態へ戻せます。
+`examples/completed/chapter07`は旧`projects/commerce`のtrackedコードを完全保存したものです。レビュー以外の管理画面やCSSの差分も含みます。元のseedは既存データを更新するため、完成例は新しい隔離コピー・新しいDBでのみ試してください。完成例の通常起動は読者の開始原本と異なります。
 
-## 注意事項
-
-- `templates/`は教材の原本です。直接編集せず、必ず`projects/`へコピーして作業してください。
-- SeaweedFSがポート8333を使用するため、複数のプロジェクトは同時に起動できません。起動中のプロジェクトを`Ctrl+C`で停止してから、次のプロジェクトを起動してください。
+検証結果と未完了項目は[著者用報告](docs/author/implementation-report.md)を参照してください。第8章Goalの基準画像生成と実ブラウザ比較はLinuxで実測済みです（開始11.351190476190476%、完成0%）。ECアプリの実起動、S3画像配信、第5〜7章の主要な実習操作も隔離環境で確認済みです。別OS、実Claude固有の連携動作、掲載スクショの撮り直しは残っています。

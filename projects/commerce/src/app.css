@@ -283,15 +283,6 @@ p {
 	transform: translateY(-3px);
 	box-shadow: 0 18px 34px -18px rgba(74, 60, 42, 0.4);
 }
-.product-card-link {
-	display: block;
-}
-.product-card h2 a {
-	text-decoration: none;
-}
-.product-card h2 a:hover {
-	color: var(--accent-text);
-}
 .product-body {
 	display: flex;
 	flex: 1;
@@ -584,86 +575,6 @@ label {
 	text-align: center;
 }
 
-/* ---- product detail / reviews ---- */
-.back-link {
-	display: inline-block;
-	margin-bottom: 24px;
-	color: var(--muted);
-	font-size: 0.86rem;
-	text-decoration: none;
-}
-.back-link:hover {
-	color: var(--ink);
-}
-.product-detail {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
-	align-items: center;
-	gap: 48px;
-	margin-bottom: 48px;
-}
-.product-detail > img {
-	display: block;
-	width: 100%;
-	aspect-ratio: 1;
-	object-fit: cover;
-	border-radius: 14px;
-	background: var(--photo);
-}
-.product-detail .lead {
-	margin: 18px 0;
-}
-.detail-price {
-	margin: 0;
-	font-family: var(--serif);
-	font-size: 1.65rem;
-	font-weight: 600;
-}
-.product-detail .stock {
-	margin: 4px 0 20px;
-}
-.rating-summary,
-.stars {
-	color: #b2763f;
-	letter-spacing: 0.06em;
-}
-.review-layout {
-	display: grid;
-	grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
-	align-items: start;
-	gap: 24px;
-}
-.review-list {
-	display: grid;
-}
-.review-item {
-	padding: 20px 0;
-	border-bottom: 1px solid var(--line);
-}
-.review-item:first-child {
-	padding-top: 0;
-}
-.review-item:last-child {
-	padding-bottom: 0;
-	border-bottom: 0;
-}
-.review-item p {
-	margin: 10px 0 0;
-}
-.review-meta {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 16px;
-}
-.review-meta span {
-	color: var(--muted);
-	font-size: 0.78rem;
-}
-.form-grid.one-column {
-	grid-template-columns: 1fr;
-}
-
 /* ---- admin ---- */
 .admin-bar {
 	background: var(--surface);
@@ -869,13 +780,6 @@ footer {
 	.hero-visual {
 		order: -1;
 		max-width: 440px;
-	}
-	.product-detail,
-	.review-layout {
-		grid-template-columns: 1fr;
-	}
-	.product-detail > img {
-		max-width: 520px;
 	}
 }
 @media (max-width: 560px) {

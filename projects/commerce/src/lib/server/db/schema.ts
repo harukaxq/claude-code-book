@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 export const products = sqliteTable('products', {
 	id: text('id').primaryKey(),
@@ -16,8 +16,7 @@ export const products = sqliteTable('products', {
 export const coupons = sqliteTable('coupons', {
 	id: text('id').primaryKey(),
 	code: text('code').notNull().unique(),
-	discountType: text('discount_type', { enum: ['fixed', 'percentage'] }).notNull(),
-	discountValue: integer('discount_value').notNull(),
+	discountAmount: integer('discount_amount').notNull(),
 	minimumSubtotal: integer('minimum_subtotal').notNull(),
 	isActive: integer('is_active', { mode: 'boolean' }).notNull(),
 	createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
@@ -46,18 +45,3 @@ export const orderItems = sqliteTable('order_items', {
 	quantity: integer('quantity').notNull(),
 	lineSubtotal: integer('line_subtotal').notNull()
 });
-
-export const reviews = sqliteTable(
-	'reviews',
-	{
-		id: text('id').primaryKey(),
-		productId: text('product_id')
-			.notNull()
-			.references(() => products.id),
-		customerId: text('customer_id').notNull(),
-		rating: integer('rating').notNull(),
-		comment: text('comment').notNull(),
-		createdAt: integer('created_at', { mode: 'timestamp' }).notNull()
-	},
-	(table) => [uniqueIndex('reviews_customer_product_unique').on(table.customerId, table.productId)]
-);

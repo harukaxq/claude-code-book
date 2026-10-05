@@ -4,7 +4,7 @@ import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { migrate } from 'drizzle-orm/bun-sqlite/migrator';
 import { db } from '$lib/server/db';
-import { coupons, orderItems, orders, products, reviews } from '$lib/server/db/schema';
+import { coupons, orderItems, orders, products } from '$lib/server/db/schema';
 import { calculateCart, calculateTotals, CheckoutError, placeOrder } from './checkout';
 
 const now = new Date('2026-01-01T00:00:00.000Z');
@@ -12,7 +12,6 @@ const now = new Date('2026-01-01T00:00:00.000Z');
 beforeAll(() => migrate(db, { migrationsFolder: './drizzle' }));
 
 beforeEach(() => {
-	db.delete(reviews).run();
 	db.delete(orderItems).run();
 	db.delete(orders).run();
 	db.delete(coupons).run();
@@ -50,8 +49,7 @@ beforeEach(() => {
 			{
 				id: 'welcome',
 				code: 'WELCOME500',
-				discountType: 'fixed',
-				discountValue: 500,
+				discountAmount: 500,
 				minimumSubtotal: 3000,
 				isActive: true,
 				createdAt: now,
@@ -60,8 +58,7 @@ beforeEach(() => {
 			{
 				id: 'old',
 				code: 'OLD500',
-				discountType: 'fixed',
-				discountValue: 500,
+				discountAmount: 500,
 				minimumSubtotal: 0,
 				isActive: false,
 				createdAt: now,
@@ -75,38 +72,13 @@ describe('calculateTotals', () => {
 	test('固定額クーポンを商品小計へ適用して送料を加算する', () => {
 		const summary = calculateTotals(
 			[{ productId: 'p1', productName: '商品', unitPrice: 3000, quantity: 1 }],
-			{
-				code: 'WELCOME500',
-				discountType: 'fixed',
-				discountValue: 500,
-				minimumSubtotal: 3000,
-				isActive: true
-			}
+			{ code: 'WELCOME500', discountAmount: 500, minimumSubtotal: 3000, isActive: true }
 		);
 		expect(summary).toMatchObject({
 			subtotal: 3000,
 			couponDiscount: 500,
 			shippingFee: 500,
 			total: 3000
-		});
-	});
-
-	test('パーセント割引を商品小計全体へ適用し、1円未満を切り捨てる', () => {
-		const summary = calculateTotals(
-			[{ productId: 'p1', productName: '商品', unitPrice: 199, quantity: 3 }],
-			{
-				code: 'TENOFF',
-				discountType: 'percentage',
-				discountValue: 10,
-				minimumSubtotal: 0,
-				isActive: true
-			}
-		);
-		expect(summary).toMatchObject({
-			subtotal: 597,
-			couponDiscount: 59,
-			total: 1038,
-			appliedCoupon: { code: 'TENOFF', discountAmount: 59 }
 		});
 	});
 
@@ -128,8 +100,7 @@ describe('calculateTotals', () => {
 		expect(
 			calculateTotals(item, {
 				code: 'HIGH',
-				discountType: 'fixed',
-				discountValue: 500,
+				discountAmount: 500,
 				minimumSubtotal: 3000,
 				isActive: true
 			}).warnings
@@ -137,8 +108,7 @@ describe('calculateTotals', () => {
 		expect(
 			calculateTotals(item, {
 				code: 'OLD',
-				discountType: 'fixed',
-				discountValue: 500,
+				discountAmount: 500,
 				minimumSubtotal: 0,
 				isActive: false
 			}).warnings
@@ -202,13 +172,12 @@ describe('管理画面の更新', () => {
 	test('存在するクーポンを更新し、存在しないクーポンはエラーにする', async () => {
 		const input = {
 			code: 'WELCOME500',
-			discountType: 'fixed' as const,
-			discountValue: 600,
+			discountAmount: 600,
 			minimumSubtotal: 3000,
 			isActive: true
 		};
 		await updateCoupon('welcome', input);
-		expect(db.select().from(coupons).where(eq(coupons.id, 'welcome')).get()?.discountValue).toBe(
+		expect(db.select().from(coupons).where(eq(coupons.id, 'welcome')).get()?.discountAmount).toBe(
 			600
 		);
 		await expect(updateCoupon('missing', input)).rejects.toThrow('クーポンが見つかりません。');

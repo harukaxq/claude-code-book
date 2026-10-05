@@ -44,6 +44,7 @@ function isCartItem(value: unknown): value is CartItem {
 }
 
 export class CartState {
+	private calculationVersion = 0;
 	items = $state<CartItem[]>([]);
 	couponCode = $state<string | null>(null);
 	summary = $state<CartSummary>(emptySummary());
@@ -89,6 +90,8 @@ export class CartState {
 	}
 
 	private save(): void {
+		this.calculationVersion += 1;
+		this.isCalculating = false;
 		if (typeof localStorage === 'undefined') return;
 		localStorage.setItem(
 			storageKey,
@@ -121,7 +124,9 @@ export class CartState {
 	}
 
 	async calculate(): Promise<void> {
+		const version = ++this.calculationVersion;
 		if (this.items.length === 0) {
+			this.isCalculating = false;
 			this.summary = emptySummary();
 			this.error = null;
 			return;
@@ -135,6 +140,7 @@ export class CartState {
 				body: JSON.stringify({ items: this.items, couponCode: this.couponCode ?? undefined })
 			});
 			const body = (await response.json()) as CartSummary | { message?: string };
+			if (version !== this.calculationVersion) return;
 			if (!response.ok) {
 				throw new Error(
 					'message' in body && body.message ? body.message : '金額を計算できませんでした。'
@@ -142,9 +148,10 @@ export class CartState {
 			}
 			this.summary = body as CartSummary;
 		} catch (error) {
+			if (version !== this.calculationVersion) return;
 			this.error = error instanceof Error ? error.message : '金額を計算できませんでした。';
 		} finally {
-			this.isCalculating = false;
+			if (version === this.calculationVersion) this.isCalculating = false;
 		}
 	}
 

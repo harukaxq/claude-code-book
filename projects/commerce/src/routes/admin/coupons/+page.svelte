@@ -8,8 +8,6 @@
 	let createOpen = $state(false);
 	let editing = $state<Coupon | null>(null);
 	let editOpen = $state(false);
-	const discountText = (coupon: Coupon) =>
-		coupon.discountType === 'fixed' ? yen(coupon.discountValue) : `${coupon.discountValue}%`;
 
 	function openEdit(coupon: Coupon) {
 		editing = coupon;
@@ -23,7 +21,7 @@
 		<div>
 			<p class="eyebrow">Admin</p>
 			<h1>クーポン管理</h1>
-			<p class="lead">固定額・パーセントクーポンの条件と利用状態を管理します。</p>
+			<p class="lead">固定額クーポンの条件と利用状態を管理します。</p>
 		</div>
 		<button onclick={() => (createOpen = true)}>クーポンを追加</button>
 	</header>
@@ -38,8 +36,7 @@
 				<thead>
 					<tr>
 						<th>クーポンコード</th>
-						<th>種類</th>
-						<th class="num">割引</th>
+						<th class="num">割引額</th>
 						<th class="num">最低購入金額</th>
 						<th>状態</th>
 						<th class="num"></th>
@@ -49,8 +46,7 @@
 					{#each data.coupons as coupon (coupon.id)}
 						<tr>
 							<td class="strong">{coupon.code}</td>
-							<td>{coupon.discountType === 'fixed' ? '固定額' : 'パーセント'}</td>
-							<td class="num">{discountText(coupon)}</td>
+							<td class="num">{yen(coupon.discountAmount)}</td>
 							<td class="num">{yen(coupon.minimumSubtotal)}</td>
 							<td
 								><span class="status" class:on={coupon.isActive}
@@ -74,14 +70,7 @@
 			<label
 				>クーポンコード<input name="code" required maxlength="50" placeholder="WELCOME500" /></label
 			>
-			<label
-				>割引の種類<select name="discountType"
-					><option value="fixed">固定額</option><option value="percentage">パーセント</option
-					></select
-				></label
-			>
-			<label>割引値（円または%）<input name="discountValue" type="number" min="1" required /></label
-			>
+			<label>割引額（円）<input name="discountAmount" type="number" min="1" required /></label>
 			<label
 				>最低購入金額（円）<input
 					name="minimumSubtotal"
@@ -94,9 +83,7 @@
 			<label class="checkbox"><input name="isActive" type="checkbox" checked />有効にする</label>
 		</div>
 		<div class="actions">
-			<button type="button" class="secondary" onclick={() => (createOpen = false)}
-				>キャンセル</button
-			>
+			<button type="button" class="secondary" onclick={() => (createOpen = false)}>キャンセル</button>
 			<button type="submit">クーポンを登録</button>
 		</div>
 	</form>
@@ -112,17 +99,11 @@
 						>クーポンコード<input name="code" value={editing.code} required maxlength="50" /></label
 					>
 					<label
-						>割引の種類<select name="discountType" value={editing.discountType}
-							><option value="fixed">固定額</option><option value="percentage">パーセント</option
-							></select
-						></label
-					>
-					<label
-						>割引値（円または%）<input
-							name="discountValue"
+						>割引額（円）<input
+							name="discountAmount"
 							type="number"
 							min="1"
-							value={editing.discountValue}
+							value={editing.discountAmount}
 							required
 						/></label
 					>
@@ -140,9 +121,7 @@
 					>
 				</div>
 				<div class="actions">
-					<button type="button" class="secondary" onclick={() => (editOpen = false)}
-						>キャンセル</button
-					>
+					<button type="button" class="secondary" onclick={() => (editOpen = false)}>キャンセル</button>
 					<button type="submit">変更を保存</button>
 				</div>
 			</form>

@@ -7,8 +7,7 @@ export type Coupon = typeof coupons.$inferSelect;
 
 export type CouponInput = {
 	code: string;
-	discountType: 'fixed' | 'percentage';
-	discountValue: number;
+	discountAmount: number;
 	minimumSubtotal: number;
 	isActive: boolean;
 };

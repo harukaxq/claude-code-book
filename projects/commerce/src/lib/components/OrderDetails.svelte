@@ -9,7 +9,6 @@
 		couponCode: string | null;
 		items: Array<{
 			id: string;
-			productId: string;
 			productName: string;
 			unitPrice: number;
 			quantity: number;
@@ -36,7 +35,7 @@
 		<tbody>
 			{#each order.items as item (item.id)}
 				<tr>
-					<td><a href={`/products/${item.productId}`}>{item.productName}</a></td>
+					<td>{item.productName}</td>
 					<td>{yen(item.unitPrice)}</td>
 					<td>{item.quantity}</td>
 					<td>{yen(item.lineSubtotal)}</td>

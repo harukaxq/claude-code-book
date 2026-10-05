@@ -2,33 +2,21 @@ import { fail } from '@sveltejs/kit';
 import { z } from 'zod';
 import { createCoupon, listCoupons, updateCoupon } from '$lib/server/services/coupons';
 
-const couponSchema = z
-	.object({
-		code: z
-			.string()
-			.trim()
-			.toUpperCase()
-			.regex(/^[A-Z0-9_-]{1,50}$/, 'コードは半角英数字で入力してください。'),
-		discountType: z.enum(['fixed', 'percentage']),
-		discountValue: z.number().int().positive('割引値は1以上にしてください。'),
-		minimumSubtotal: z.number().int().min(0, '最低購入金額は0以上にしてください。'),
-		isActive: z.boolean()
-	})
-	.superRefine((coupon, context) => {
-		if (coupon.discountType === 'percentage' && coupon.discountValue > 100) {
-			context.addIssue({
-				code: 'custom',
-				path: ['discountValue'],
-				message: '割引率は100%以下にしてください。'
-			});
-		}
-	});
+const couponSchema = z.object({
+	code: z
+		.string()
+		.trim()
+		.toUpperCase()
+		.regex(/^[A-Z0-9_-]{1,50}$/, 'コードは半角英数字で入力してください。'),
+	discountAmount: z.number().int().positive('割引額は1円以上にしてください。'),
+	minimumSubtotal: z.number().int().min(0, '最低購入金額は0以上にしてください。'),
+	isActive: z.boolean()
+});
 
 function readCoupon(formData: FormData) {
 	return couponSchema.safeParse({
 		code: formData.get('code'),
-		discountType: formData.get('discountType'),
-		discountValue: Number(formData.get('discountValue')),
+		discountAmount: Number(formData.get('discountAmount')),
 		minimumSubtotal: Number(formData.get('minimumSubtotal')),
 		isActive: formData.get('isActive') === 'on'
 	});

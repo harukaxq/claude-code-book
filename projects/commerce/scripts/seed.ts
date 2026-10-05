@@ -1,11 +1,10 @@
 import { CreateBucketCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { eq } from 'drizzle-orm';
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { db } from '../src/lib/server/db';
-import { coupons, products, reviews } from '../src/lib/server/db/schema';
+import { coupons, products } from '../src/lib/server/db/schema';
 
 const bucket = 'tiny-commerce';
 const sampleDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '../samples/products');
@@ -73,54 +72,18 @@ const couponSeeds = [
 	{
 		id: 'coupon-welcome500',
 		code: 'WELCOME500',
-		discountType: 'fixed' as const,
-		discountValue: 500,
+		discountAmount: 500,
 		minimumSubtotal: 3000,
 		isActive: true
 	},
 	{
 		id: 'coupon-small100',
 		code: 'SMALL100',
-		discountType: 'fixed' as const,
-		discountValue: 100,
+		discountAmount: 100,
 		minimumSubtotal: 0,
 		isActive: true
 	},
-	{
-		id: 'coupon-tenoff',
-		code: 'TENOFF',
-		discountType: 'percentage' as const,
-		discountValue: 10,
-		minimumSubtotal: 0,
-		isActive: true
-	},
-	{
-		id: 'coupon-old500',
-		code: 'OLD500',
-		discountType: 'fixed' as const,
-		discountValue: 500,
-		minimumSubtotal: 0,
-		isActive: false
-	}
-];
-
-const reviewSeeds = [
-	{
-		id: 'review-desk-mat-1',
-		productId: 'product-desk-mat',
-		customerId: 'sample-customer-1',
-		rating: 5,
-		comment: '机の上が落ち着いた雰囲気になりました。手触りも気に入っています。',
-		createdAt: new Date('2026-01-10T10:00:00.000Z')
-	},
-	{
-		id: 'review-desk-mat-2',
-		productId: 'product-desk-mat',
-		customerId: 'sample-customer-2',
-		rating: 4,
-		comment: '十分な広さがあり、キーボードとマウスをゆったり置けます。',
-		createdAt: new Date('2026-01-08T10:00:00.000Z')
-	}
+	{ id: 'coupon-old500', code: 'OLD500', discountAmount: 500, minimumSubtotal: 0, isActive: false }
 ];
 
 const missingFiles = productSeeds
@@ -151,46 +114,30 @@ for (const product of productSeeds) {
 	await db
 		.insert(products)
 		.values({ ...values, createdAt: now, updatedAt: now })
-		.onConflictDoUpdate({
-			target: products.id,
-			set: { ...values, updatedAt: now }
-		});
+		.onConflictDoNothing();
 
-	await s3.send(
-		new PutObjectCommand({
-			Bucket: bucket,
-			Key: values.imageKey,
-			Body: await readFile(resolve(sampleDirectory, file)),
-			ContentType: 'image/webp'
-		})
-	);
-}
-
-for (const review of reviewSeeds) {
-	await db.insert(reviews).values(review).onConflictDoUpdate({
-		target: reviews.id,
-		set: review
-	});
+	try {
+		await s3.send(
+			new PutObjectCommand({
+				IfNoneMatch: '*',
+				Bucket: bucket,
+				Key: values.imageKey,
+				Body: await readFile(resolve(sampleDirectory, file)),
+				ContentType: 'image/webp'
+			})
+		);
+	} catch (error) {
+		if (!(error instanceof Error) || error.name !== 'PreconditionFailed') throw error;
+	}
 }
 
 for (const coupon of couponSeeds) {
-	const existing = await db
-		.select({ id: coupons.id })
-		.from(coupons)
-		.where(eq(coupons.code, coupon.code))
-		.get();
-	if (existing && existing.id !== coupon.id) {
-		await db.delete(coupons).where(eq(coupons.id, existing.id));
-	}
 	await db
 		.insert(coupons)
 		.values({ ...coupon, createdAt: now, updatedAt: now })
-		.onConflictDoUpdate({
-			target: coupons.id,
-			set: { ...coupon, updatedAt: now }
-		});
+		.onConflictDoNothing();
 }
 
 console.log(
-	`商品${productSeeds.length}件、クーポン${couponSeeds.length}件、レビュー${reviewSeeds.length}件、商品画像${productSeeds.length}件を投入しました。`
+	`商品${productSeeds.length}件、クーポン${couponSeeds.length}件、商品画像${productSeeds.length}件の不足分を補いました（既存データは保持）。`
 );

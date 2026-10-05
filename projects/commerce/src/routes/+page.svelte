@@ -44,12 +44,10 @@
 	<section class="product-grid" aria-label="商品一覧">
 		{#each data.products as product (product.id)}
 			<article class="product-card">
-				<a class="product-card-link" href={`/products/${product.id}`}>
-					<img src={`${data.imageBaseUrl}/${product.imageKey}`} alt={product.name} />
-				</a>
+				<img src={`${data.imageBaseUrl}/${product.imageKey}`} alt={product.name} />
 				<div class="product-body">
 					<p class="category">{categoryName[product.category]}</p>
-					<h2><a href={`/products/${product.id}`}>{product.name}</a></h2>
+					<h2>{product.name}</h2>
 					<p class="description">{product.description}</p>
 					<div class="price-row">
 						<div>

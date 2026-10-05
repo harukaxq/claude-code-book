@@ -1,5 +1,4 @@
 import { CreateBucketCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { eq } from 'drizzle-orm';
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
@@ -115,39 +114,30 @@ for (const product of productSeeds) {
 	await db
 		.insert(products)
 		.values({ ...values, createdAt: now, updatedAt: now })
-		.onConflictDoUpdate({
-			target: products.id,
-			set: { ...values, updatedAt: now }
-		});
+		.onConflictDoNothing();
 
-	await s3.send(
-		new PutObjectCommand({
-			Bucket: bucket,
-			Key: values.imageKey,
-			Body: await readFile(resolve(sampleDirectory, file)),
-			ContentType: 'image/webp'
-		})
-	);
+	try {
+		await s3.send(
+			new PutObjectCommand({
+				IfNoneMatch: '*',
+				Bucket: bucket,
+				Key: values.imageKey,
+				Body: await readFile(resolve(sampleDirectory, file)),
+				ContentType: 'image/webp'
+			})
+		);
+	} catch (error) {
+		if (!(error instanceof Error) || error.name !== 'PreconditionFailed') throw error;
+	}
 }
 
 for (const coupon of couponSeeds) {
-	const existing = await db
-		.select({ id: coupons.id })
-		.from(coupons)
-		.where(eq(coupons.code, coupon.code))
-		.get();
-	if (existing && existing.id !== coupon.id) {
-		await db.delete(coupons).where(eq(coupons.id, existing.id));
-	}
 	await db
 		.insert(coupons)
 		.values({ ...coupon, createdAt: now, updatedAt: now })
-		.onConflictDoUpdate({
-			target: coupons.id,
-			set: { ...coupon, updatedAt: now }
-		});
+		.onConflictDoNothing();
 }
 
 console.log(
-	`商品${productSeeds.length}件、クーポン${couponSeeds.length}件、商品画像${productSeeds.length}件を投入しました。`
+	`商品${productSeeds.length}件、クーポン${couponSeeds.length}件、商品画像${productSeeds.length}件の不足分を補いました（既存データは保持）。`
 );
