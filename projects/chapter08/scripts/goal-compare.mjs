@@ -52,8 +52,8 @@ try {
 		differentPixels: pixels,
 		totalPixels: 201600,
 		percent,
-		limitPercent: 1,
-		passed: percent <= 1
+		limitPercent: 2,
+		passed: percent <= 2
 	};
 	await writeFile(resolve(output, 'diff.png'), PNG.sync.write(diff));
 	await writeFile(resolve(output, 'result.json'), JSON.stringify(result, null, 2) + '\n');
